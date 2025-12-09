@@ -8,6 +8,25 @@ const util = require('util');
 const moodMap = require('./moodMap');
 const spotify = require('./spotify');
 
+// Utility: shuffle array in-place (Fisher-Yates)
+function shuffleArray(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Utility: apply small jitter to a value between 0 and 1
+function jitter(value, amount=0.15){
+  if (typeof value !== 'number') return value;
+  const delta = (Math.random() * 2 - 1) * amount;
+  let v = value + delta;
+  if (v < 0) v = 0; if (v > 1) v = 1;
+  return Number(v.toFixed(3));
+}
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -57,10 +76,15 @@ app.get('/internal/debug-create/:spotify_id', async (req, res) => {
       console.error('DEBUG token profile error:', pe?.response?.status, pe?.response?.data || pe?.message);
     }
 
-    // choose a mood (first) for deterministic debug
+    // choose a mood (first) for deterministic debug, but randomize seeds & jitter targets
     const moodKey = Object.keys(moodMap)[0] || 'happy';
-    const mm = moodMap[moodKey] || moodMap['happy'];
-    const seed_genres = (mm.genres || []).slice(0,5).join(',');
+    const base = moodMap[moodKey] || moodMap['happy'];
+    const shuffledGenres = shuffleArray(base.genres || []);
+    const chosenGenres = shuffledGenres.slice(0, Math.min(5, shuffledGenres.length));
+    const seed_genres = chosenGenres.join(',');
+    const mm = Object.assign({}, base,
+      { target_valence: jitter(base.target_valence), target_energy: jitter(base.target_energy) }
+    );
 
   let recs;
     try {
@@ -99,7 +123,9 @@ app.get('/internal/debug-create/:spotify_id', async (req, res) => {
       }
     }
 
-  const trackUris = recs.tracks.slice(0,20).map(t => t.uri || t.track?.uri).filter(Boolean);
+  let trackUris = (recs.tracks || []).slice(0,20).map(t => t.uri || t.track?.uri).filter(Boolean);
+  // shuffle selected tracks so repeated calls produce different playlists
+  trackUris = shuffleArray(trackUris);
     if (!trackUris.length) return res.status(502).json({ error: 'no track uris', recs });
 
     // create playlist using /v1/me/playlists to avoid user id mismatch
@@ -124,6 +150,16 @@ app.get('/internal/debug-create/:spotify_id', async (req, res) => {
 
 // Serve static client build (populated by Docker multi-stage build)
 app.use(express.static(path.join(__dirname, 'public')));
+
+// SPA fallback: serve index.html for any non-API route so client-side routing works
+app.get('*', (req, res, next) => {
+  // let API routes fall through
+  if (req.path.startsWith('/api/') || req.path.startsWith('/internal/')) return next();
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) next(err);
+  });
+});
 
 // OAuth login: redirect to Spotify authorize
 app.get('/api/login', (req, res) => {
@@ -174,6 +210,38 @@ app.get('/api/callback', async (req, res) => {
   }
 });
 
+// Dev helper: simulate a successful OAuth callback for local testing
+// Usage: GET /api/dev-login?spotify_id=TESTUSER
+// This endpoint is only enabled when NODE_ENV !== 'production'. It will try to upsert
+// a minimal user record if MongoDB is available, but will still redirect even if DB is down.
+app.get('/api/dev-login', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') return res.status(404).send('not found');
+  const spotify_id = req.query.spotify_id || `dev_${Math.random().toString(36).slice(2,8)}`;
+  try {
+    // try upserting a minimal user so create-playlist can run (if Mongo is available)
+    try {
+      const db = await connectDB();
+      const users = db.collection('users');
+      await users.updateOne({ spotify_id }, { $set: {
+        spotify_id,
+        display_name: `Dev ${spotify_id}`,
+        access_token: 'DEV_ACCESS_TOKEN',
+        refresh_token: 'DEV_REFRESH_TOKEN',
+        expires_at: Date.now() + 3600 * 1000
+      } }, { upsert: true });
+      console.log('Dev-login: upserted user', spotify_id);
+    } catch (dbErr) {
+      console.warn('Dev-login: could not upsert user (no mongo?):', dbErr.message);
+    }
+
+    // Redirect to client with spotify_id so client picks it up and stores to localStorage
+    return res.redirect(`/?spotify_id=${encodeURIComponent(spotify_id)}`);
+  } catch (err) {
+    console.error('Dev-login failed', err?.message || err);
+    return res.status(500).json({ error: 'dev-login-failed' });
+  }
+});
+
 // Create playlist from mood for a stored user
 app.post('/api/create-playlist', async (req, res) => {
   // expected: { mood: 'happy', spotify_id: '...' }
@@ -199,8 +267,11 @@ app.post('/api/create-playlist', async (req, res) => {
     }
 
     // build recommendation query from moodMap
-    const mm = moodMap[mood] || moodMap['happy'];
-    const seed_genres = (mm.genres || []).slice(0,5).join(',');
+  const base = moodMap[mood] || moodMap['happy'];
+  const shuffledGenres = shuffleArray(base.genres || []);
+  const chosenGenres = shuffledGenres.slice(0, Math.min(5, shuffledGenres.length));
+  const seed_genres = chosenGenres.join(',');
+  const mm = Object.assign({}, base, { target_valence: jitter(base.target_valence), target_energy: jitter(base.target_energy) });
     let recs;
     try {
       recs = await spotify.getRecommendations(accessToken, { seed_genres, ...mm });
@@ -229,7 +300,8 @@ app.post('/api/create-playlist', async (req, res) => {
       }
     }
 
-    const trackUris = recs.tracks.slice(0,30).map(t => t.uri || t.track?.uri).filter(Boolean);
+  let trackUris = (recs.tracks || []).slice(0,30).map(t => t.uri || t.track?.uri).filter(Boolean);
+  trackUris = shuffleArray(trackUris);
 
     // create playlist
   const playlist = await spotify.createPlaylist(accessToken, user.spotify_id, `Mood: ${mood} — generated`, `Generated by Mood Playlist for mood ${mood}`);

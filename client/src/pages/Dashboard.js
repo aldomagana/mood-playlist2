@@ -1,22 +1,12 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
+import { useAuth } from '../auth';
 
 const MOODS = ['happy','sad','chill','energetic','romantic'];
 
 export default function Dashboard(){
   const [mood, setMood] = useState('happy');
   const [result, setResult] = useState(null);
-  const [spotifyId, setSpotifyId] = useState(null);
-
-  useEffect(()=>{
-    const params = new URLSearchParams(window.location.search);
-    const sid = params.get('spotify_id');
-    if(sid){
-      setSpotifyId(sid);
-      params.delete('spotify_id');
-      const base = window.location.pathname + (params.toString()?`?${params.toString()}`:'');
-      window.history.replaceState({}, document.title, base);
-    }
-  },[]);
+  const { spotifyId } = useAuth();
 
   const create = async () => {
     if(!spotifyId){
@@ -42,11 +32,10 @@ export default function Dashboard(){
         ))}
       </div>
       <div style={{marginTop:20}}>
-        <a href="/api/login" style={{marginRight:10}}>Login with Spotify</a>
         <button onClick={create}>Create Playlist</button>
       </div>
 
-      {spotifyId && <div style={{marginTop:10}}>Logged in as: <strong>{spotifyId}</strong></div>}
+  {/* spotifyId is intentionally not shown for privacy */}
 
       {result && (
         <div style={{marginTop:20, background:'#f7f7f7', padding:10}}>
