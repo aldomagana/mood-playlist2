@@ -1,8 +1,11 @@
+/* ---------------------------------------------------------
+   GLOBAL VARIABLES & BASE STYLES
+--------------------------------------------------------- */
 :root{
   --bg: #f4f6f9;
   --card: #ffffff;
   --muted: #6b7280;
-  --accent: #2b6ef6; /* neutral blue */
+  --accent: #2b6ef6;
   --accent-600: #1e56d6;
   --accent-200: #d9e6ff;
   --border: #e6e9ee;
@@ -12,34 +15,214 @@
 }
 
 html,body,#root{ height:100%; }
-body{ margin:0; background:var(--bg); color:#0f172a; -webkit-font-smoothing:antialiased; }
+body{
+  margin:0;
+  background:var(--bg);
+  color:#0f172a;
+  -webkit-font-smoothing:antialiased;
+}
 
-.app{ max-width:1000px; margin:36px auto; padding:28px; }
-.site-nav{ background:#124380; }
-.topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; }
-.brand{ display:flex; align-items:center; gap:12px; }
-.logo{ width:44px; height:44px; border-radius:8px; background:linear-gradient(135deg,var(--accent),#6fb0ff); box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; }
-.nav{ display:flex; gap:12px; align-items:center }
-.site-nav .nav a{ color:rgba(255,255,255,0.9); text-decoration:none; padding:8px 12px; border-radius:8px; }
-.site-nav .nav a:hover{ background:rgba(255,255,255,0.06); color:white; }
-.btn{ background:var(--accent); color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:600; }
-.btn.secondary{ background:#eef2ff; color:var(--accent-600); font-weight:600; }
-.card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; }
-.page-title{ margin:0 0 8px 0; font-size:20px; }
-.muted{ color:var(--muted); }
-.mood-bar{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
-.mood-btn{ padding:10px 14px; border-radius:8px; border:1px solid transparent; background:#f8fafc; color:#111827; cursor:pointer; }
-.mood-btn.active{ background:var(--accent); color:white; border-color:var(--accent-600); box-shadow:0 6px 14px rgba(43,110,246,0.12); }
-.result{ margin-top:16px; }
-.tracks{ margin-top:12px; }
-.tracks li{ margin:6px 0; }
-.footer{ margin-top:28px; text-align:center; color:var(--muted); font-size:13px }
+/* ---------------------------------------------------------
+   NAVBAR
+--------------------------------------------------------- */
+.site-nav{
+  background:#124380;
+}
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:24px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.logo{
+  width:44px;
+  height:44px;
+  border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),#6fb0ff);
+  box-shadow:var(--shadow);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:700;
+}
+.nav{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.site-nav .nav a{
+  color:rgba(255,255,255,0.9);
+  text-decoration:none;
+  padding:8px 12px;
+  border-radius:8px;
+}
+.site-nav .nav a:hover{
+  background:rgba(255,255,255,0.06);
+  color:white;
+}
 
-/* Home page: evenly spaced sections that fill viewport height */
-.home-sections{ display:flex; flex-direction:column; gap:18px; min-height: calc(100vh - 120px); /* leave space for nav */ padding-top:20px; padding-bottom:20px }
-.home-sections .section{ flex:1; display:flex; flex-direction:column; justify-content:center }
+/* ---------------------------------------------------------
+   BUTTONS
+--------------------------------------------------------- */
+.btn{
+  background:var(--accent);
+  color:white;
+  border:none;
+  padding:10px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+}
+.btn.secondary{
+  background:#eef2ff;
+  color:var(--accent-600);
+  font-weight:600;
+}
 
-/* Ensure nav links look like buttons on small screens */
+/* ---------------------------------------------------------
+   CARDS / CONTAINERS
+--------------------------------------------------------- */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+.page-title{
+  margin:0 0 8px 0;
+  font-size:20px;
+}
+.muted{
+  color:var(--muted);
+}
+
+/* ---------------------------------------------------------
+   MODERN DASHBOARD
+--------------------------------------------------------- */
+
+.dashboard {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* Header */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.dashboard-header h1 {
+  font-size: 36px;
+  margin: 0 0 10px;
+  color: #124380;
+}
+.dashboard-header p {
+  font-size: 18px;
+  color: var(--muted);
+}
+
+/* Sections */
+.dashboard-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px;
+  margin-bottom: 36px;
+}
+
+/* Mood grid */
+.mood-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.mood-tile {
+  padding: 14px;
+  border-radius: 10px;
+  background:#eef2ff;
+  border:2px solid transparent;
+  text-transform: capitalize;
+  font-size: 16px;
+  cursor:pointer;
+  transition:.25s ease;
+}
+
+.mood-tile:hover {
+  background:#d9e6ff;
+}
+
+.mood-tile.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent-600);
+  box-shadow: 0 6px 14px rgba(43,110,246,0.22);
+}
+
+/* Actions */
+.dashboard-actions {
+  margin-top: 24px;
+  display:flex;
+  gap:10px;
+}
+
+/* Playlist results */
+.playlist-section h2 {
+  margin-top:0;
+  font-size:28px;
+}
+
+.playlist-error {
+  color: crimson;
+  margin-bottom: 12px;
+  font-weight:600;
+}
+
+.playlist-link {
+  display:inline-block;
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.track-list h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.track-list ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.track-list li {
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.track-name {
+  font-weight: 600;
+  color:#111827;
+}
+.track-artists {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE NAV BUTTONS
+--------------------------------------------------------- */
 @media (max-width:720px){
   .site-nav .nav{ gap:8px }
   .site-nav .nav a{ padding:8px; }
