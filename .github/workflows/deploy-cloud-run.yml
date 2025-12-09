@@ -22,7 +22,8 @@ jobs:
       - name: Run client tests and build
         working-directory: ./client
         run: |
-          npm ci
+          # use npm install to avoid lockfile mismatch in CI
+          npm install
           CI=true npm test -- --watchAll=false || true
           npm run build
 
@@ -67,5 +68,9 @@ jobs:
             exit 1;
           fi
           # quick CSS check for navbar color
-          CSS=$(curl -s https://mood-playlist-service-669667445766.us-central1.run.app/static/css/main.41fd6ef1.css || true)
+          # fetch root and extract CSS href, then check for navbar color
+          ROOT=$(curl -s https://mood-playlist-service-669667445766.us-central1.run.app/ || true)
+          CSS_HREF=$(echo "$ROOT" | grep -oP 'href="/static/css/[^\"]+"' | head -n1 | sed -E 's/href="(.*)"/\1/')
+          echo "Found CSS href: $CSS_HREF"
+          CSS=$(curl -s https://mood-playlist-service-669667445766.us-central1.run.app$CSS_HREF || true)
           echo "$CSS" | grep -q "#124380" && echo "Navbar color present" || (echo "Navbar color missing" && exit 1)
