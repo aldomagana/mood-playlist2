@@ -22,8 +22,10 @@ jobs:
           project_id: mood-playlist2
 
       - name: Build and push image (Cloud Build)
-        run: |
-          gcloud builds submit --tag gcr.io/mood-playlist2/mood-playlist:${{ github.sha }} .
+        uses: google-github-actions/build@v0
+        with:
+          project_id: mood-playlist2
+          images: gcr.io/mood-playlist2/mood-playlist:${{ github.sha }}
 
       - name: Deploy to Cloud Run
         run: |
