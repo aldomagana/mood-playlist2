@@ -1,0 +1,30 @@
+name: Build and deploy to Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: mood-playlist2
+
+      - name: Build and push image (Cloud Build)
+        run: |
+          gcloud builds submit --tag gcr.io/mood-playlist2/mood-playlist:${{ github.sha }} .
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy mood-playlist-service \
+            --image gcr.io/mood-playlist2/mood-playlist:${{ github.sha }} \
+            --region us-central1 \
+            --platform managed \
+            --quiet
