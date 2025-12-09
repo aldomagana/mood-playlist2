@@ -14,12 +14,21 @@ function ProtectedRoute({ children }){
 function Nav(){
   const { spotifyId, logout } = useAuth();
   return (
-    <nav style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-      <Link to="/">Home</Link>
-      {!spotifyId && <Link to="/login">Login</Link>}
-      <Link to="/dashboard">Dashboard</Link>
-      {spotifyId && <button onClick={logout} style={{marginLeft:12}}>Logout</button>}
-    </nav>
+    <div className="topbar">
+      <div className="brand">
+        <div className="logo">MP</div>
+        <div>
+          <div style={{fontWeight:700}}>Mood Playlist</div>
+          <div className="muted" style={{fontSize:12}}>Create playlists from moods</div>
+        </div>
+      </div>
+      <div className="nav">
+        <Link to="/">Home</Link>
+        {!spotifyId && <Link to="/login">Login</Link>}
+        <Link to="/dashboard">Dashboard</Link>
+        {spotifyId && <button className="btn" onClick={logout} style={{marginLeft:12}}>Logout</button>}
+      </div>
+    </div>
   );
 }
 
@@ -27,7 +36,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div style={{ padding: 10, fontFamily: 'Arial' }}>
+        <div className="app">
           <Nav />
 
           <Routes>

@@ -13,41 +13,48 @@ export default function Dashboard(){
       setResult({ error: 'not logged in: please login with Spotify first' });
       return;
     }
-    const res = await fetch('/api/create-playlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mood, spotify_id: spotifyId })
-    });
-    const data = await res.json();
-    setResult(data);
+    try {
+      const res = await fetch('/api/create-playlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mood, spotify_id: spotifyId })
+      });
+      const data = await res.json();
+      setResult(data);
+    } catch (err) {
+      setResult({ error: err.message || 'request failed' });
+    }
   }
 
   return (
-    <div style={{padding:20,fontFamily:'Arial'}}>
-      <h2>Dashboard</h2>
-      <p>Pick a mood and create a Spotify playlist.</p>
-      <div>
-        {MOODS.map(m=> (
-          <button key={m} onClick={()=>setMood(m)} style={{margin:5, padding:10, background:m===mood?'#0070f3':'#eee'}}>{m}</button>
-        ))}
-      </div>
-      <div style={{marginTop:20}}>
-        <button onClick={create}>Create Playlist</button>
-      </div>
+    <div className="app">
+      <div className="card">
+        <h2 className="page-title">Dashboard</h2>
+        <p className="muted">Pick a mood and create a Spotify playlist.</p>
 
-  {/* spotifyId is intentionally not shown for privacy */}
+        <div className="mood-bar">
+          {MOODS.map(m=> (
+            <button key={m} onClick={()=>setMood(m)} className={`mood-btn ${m===mood? 'active':''}`}>{m}</button>
+          ))}
+        </div>
+
+        <div style={{marginTop:18}}>
+          <button className="btn" onClick={create}>Create Playlist</button>
+          <button className="btn secondary" onClick={()=>setResult(null)} style={{marginLeft:8}}>Clear</button>
+        </div>
+      </div>
 
       {result && (
-        <div style={{marginTop:20, background:'#f7f7f7', padding:10}}>
-          {result.error && <div style={{color:'red'}}>Error: {result.error}</div>}
+        <div className="card result">
+          {result.error && <div style={{color:'crimson'}}>Error: {result.error}</div>}
           {result.playlist && (
             <div>
-              <h3>{result.playlist.name}</h3>
+              <h3 style={{marginTop:0}}>{result.playlist.name}</h3>
               <div><a href={result.playlist.external_urls?.spotify} target="_blank" rel="noreferrer">Open in Spotify</a></div>
             </div>
           )}
           {result.playlistTracks && result.playlistTracks.items && (
-            <div style={{marginTop:10}}>
+            <div className="tracks">
               <h4>Tracks ({result.playlistTracks.total}):</h4>
               <ol>
                 {result.playlistTracks.items.map((it, idx) => {
@@ -57,9 +64,10 @@ export default function Dashboard(){
               </ol>
             </div>
           )}
-          {!result.playlist && !result.error && <div>Created. Check the playlist link above.</div>}
         </div>
       )}
+
+      <div className="footer">Built with Spotify API • Mood Playlist</div>
     </div>
   )
 }
