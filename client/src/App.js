@@ -1,82 +1,25 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 
-const MOODS = ['happy','sad','chill','energetic','romantic'];
-
-export default function App(){
-  const [mood, setMood] = useState('happy');
-  const [result, setResult] = useState(null);
-  const [spotifyId, setSpotifyId] = useState(null);
-
-  useEffect(()=>{
-    // parse spotify_id from query string after callback
-    const params = new URLSearchParams(window.location.search);
-    const sid = params.get('spotify_id');
-    if(sid){
-      setSpotifyId(sid);
-      // clean up URL
-      params.delete('spotify_id');
-      const base = window.location.pathname + (params.toString()?`?${params.toString()}`:'');
-      window.history.replaceState({}, document.title, base);
-    }
-  },[]);
-
-  const login = () => {
-    window.location.href = '/api/login';
-  }
-
-  const create = async () => {
-    if(!spotifyId){
-      setResult({ error: 'not logged in: please login with Spotify first' });
-      return;
-    }
-    const res = await fetch('/api/create-playlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mood, spotify_id: spotifyId })
-    });
-    const data = await res.json();
-    setResult(data);
-  }
-
+export default function App() {
   return (
-    <div style={{padding:20,fontFamily:'Arial'}}>
-      <h1>Mood Playlist</h1>
-      <p>Pick a mood and create a Spotify playlist.</p>
-      <div>
-        {MOODS.map(m=> (
-          <button key={m} onClick={()=>setMood(m)} style={{margin:5, padding:10, background:m===mood?'#0070f3':'#eee'}}>{m}</button>
-        ))}
-      </div>
-      <div style={{marginTop:20}}>
-        <button onClick={login} style={{marginRight:10}}>Login with Spotify</button>
-        <button onClick={create}>Create Playlist</button>
-      </div>
+    <BrowserRouter>
+      <div style={{ padding: 10, fontFamily: 'Arial' }}>
+        <nav style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+          <Link to="/">Home</Link>
+          <Link to="/login">Login</Link>
+          <Link to="/dashboard">Dashboard</Link>
+        </nav>
 
-      {spotifyId && <div style={{marginTop:10}}>Logged in as: <strong>{spotifyId}</strong></div>}
-
-      {result && (
-        <div style={{marginTop:20, background:'#f7f7f7', padding:10}}>
-          {result.error && <div style={{color:'red'}}>Error: {result.error}</div>}
-          {result.playlist && (
-            <div>
-              <h3>{result.playlist.name}</h3>
-              <div><a href={result.playlist.external_urls?.spotify} target="_blank" rel="noreferrer">Open in Spotify</a></div>
-            </div>
-          )}
-          {result.playlistTracks && result.playlistTracks.items && (
-            <div style={{marginTop:10}}>
-              <h4>Tracks ({result.playlistTracks.total}):</h4>
-              <ol>
-                {result.playlistTracks.items.map((it, idx) => {
-                  const t = it.track || it;
-                  return <li key={t?.id || idx}>{t?.name} — {t?.artists?.map(a=>a.name).join(', ')}</li>
-                })}
-              </ol>
-            </div>
-          )}
-          {!result.playlist && !result.error && <div>Created. Check the playlist link above.</div>}
-        </div>
-      )}
-    </div>
-  )
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
 }
