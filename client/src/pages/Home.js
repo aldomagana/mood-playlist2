@@ -20,28 +20,28 @@ export default function Home(){
         </div>
       </header>
 
-      <main className="app" style={{paddingTop:20}}>
-        <section id="welcome" className="card" style={{marginBottom:18}}>
-          <h1 className="page-title">Welcome to Mood Playlist</h1>
-          <p className="muted">Turn your mood into a Spotify playlist in seconds. Login with Spotify, choose a mood, and we'll build a playlist tailored to the vibe.</p>
-        </section>
+        <main className="app home-sections">
+          <section id="welcome" className="card section">
+            <h1 className="page-title">Welcome to Mood Playlist</h1>
+            <p className="muted">Turn your mood into a Spotify playlist in seconds. Login with Spotify, choose a mood, and we'll build a playlist tailored to the vibe.</p>
+          </section>
 
-        <section id="features" className="card" style={{marginBottom:18}}>
-          <h2 className="page-title">Features</h2>
-          <ul>
-            <li>One-click Spotify login and authorization</li>
-            <li>Pre-defined moods mapped to curated genre seeds and audio features</li>
-            <li>Smart track selection using recommendations, artist top-tracks, and search fallbacks</li>
-            <li>Shuffle, jitter, and dedupe logic to ensure varied playlists every time</li>
-            <li>Deployable container with CI/CD to Google Cloud Run</li>
-          </ul>
-        </section>
+          <section id="features" className="card section">
+            <h2 className="page-title">Features</h2>
+            <ul>
+              <li>One-click Spotify login and authorization</li>
+              <li>Pre-defined moods mapped to curated genre seeds and audio features</li>
+              <li>Smart track selection using recommendations, artist top-tracks, and search fallbacks</li>
+              <li>Shuffle, jitter, and dedupe logic to ensure varied playlists every time</li>
+              <li>Deployable container with CI/CD to Google Cloud Run</li>
+            </ul>
+          </section>
 
-        <section id="thanks" className="card">
-          <h2 className="page-title">Thank you</h2>
-          <p className="muted">Thanks for trying Mood Playlist. We hope this helps you set the perfect soundtrack for any mood. Feedback and contributions are welcome on GitHub.</p>
-        </section>
-      </main>
+          <section id="thanks" className="card section">
+            <h2 className="page-title">Thank you</h2>
+            <p className="muted">Thanks for trying Mood Playlist. We hope this helps you set the perfect soundtrack for any mood. Feedback and contributions are welcome on GitHub.</p>
+          </section>
+        </main>
     </div>
   )
 }

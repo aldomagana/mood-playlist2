@@ -34,3 +34,13 @@ body{ margin:0; background:var(--bg); color:#0f172a; -webkit-font-smoothing:anti
 .tracks{ margin-top:12px; }
 .tracks li{ margin:6px 0; }
 .footer{ margin-top:28px; text-align:center; color:var(--muted); font-size:13px }
+
+/* Home page: evenly spaced sections that fill viewport height */
+.home-sections{ display:flex; flex-direction:column; gap:18px; min-height: calc(100vh - 120px); /* leave space for nav */ padding-top:20px; padding-bottom:20px }
+.home-sections .section{ flex:1; display:flex; flex-direction:column; justify-content:center }
+
+/* Ensure nav links look like buttons on small screens */
+@media (max-width:720px){
+  .site-nav .nav{ gap:8px }
+  .site-nav .nav a{ padding:8px; }
+}
