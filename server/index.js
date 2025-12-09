@@ -79,9 +79,13 @@ app.get('/internal/debug-create/:spotify_id', async (req, res) => {
     // choose a mood (first) for deterministic debug, but randomize seeds & jitter targets
     const moodKey = Object.keys(moodMap)[0] || 'happy';
     const base = moodMap[moodKey] || moodMap['happy'];
-    const shuffledGenres = shuffleArray(base.genres || []);
-    const chosenGenres = shuffledGenres.slice(0, Math.min(5, shuffledGenres.length));
-    const seed_genres = chosenGenres.join(',');
+  // validate seed genres against Spotify's available genre seeds
+  let availableSeeds = [];
+  try { availableSeeds = await spotify.getAvailableGenreSeeds(accessToken); } catch(e){ availableSeeds = []; }
+  const candidateGenres = (base.genres || []).map(g => g.toLowerCase());
+  const validGenres = candidateGenres.filter(g => availableSeeds.includes(g));
+  const chosenGenres = shuffleArray(validGenres.length ? validGenres : candidateGenres || ['pop']);
+  const seed_genres = chosenGenres.slice(0, Math.min(5, chosenGenres.length)).join(',');
     const mm = Object.assign({}, base,
       { target_valence: jitter(base.target_valence), target_energy: jitter(base.target_energy) }
     );
@@ -113,9 +117,15 @@ app.get('/internal/debug-create/:spotify_id', async (req, res) => {
       console.warn('No recommendations returned; attempting fallback search by genre', seed_genres);
       try {
         const genre = (mm.genres && mm.genres[0]) || 'pop';
-        const searchResp = await spotify.searchTopTracksByGenre(accessToken, genre, 30);
-        // searchResp.tracks.items contains tracks
-        const items = (searchResp.tracks && searchResp.tracks.items) || [];
+        let searchResp = await spotify.searchTopTracksByGenre(accessToken, genre, 30);
+        let items = (searchResp.tracks && searchResp.tracks.items) || [];
+        // if still empty, try searching by mood keyword(s)
+        if (!items.length) {
+          const moodKeyword = moodKey || 'romantic';
+          console.warn('Genre search returned no items, trying mood keyword search:', moodKeyword);
+          searchResp = await spotify.searchTopTracksByGenre(accessToken, `${moodKeyword} love`, 30);
+          items = (searchResp.tracks && searchResp.tracks.items) || [];
+        }
         recs = { tracks: items };
       } catch (se) {
         console.error('Fallback search failed', se?.response?.data || se?.message);
@@ -268,9 +278,13 @@ app.post('/api/create-playlist', async (req, res) => {
 
     // build recommendation query from moodMap
   const base = moodMap[mood] || moodMap['happy'];
-  const shuffledGenres = shuffleArray(base.genres || []);
-  const chosenGenres = shuffledGenres.slice(0, Math.min(5, shuffledGenres.length));
-  const seed_genres = chosenGenres.join(',');
+  // validate seed genres against Spotify's available genre seeds
+  let availableSeeds = [];
+  try { availableSeeds = await spotify.getAvailableGenreSeeds(); } catch(e){ availableSeeds = []; }
+  const candidateGenres = (base.genres || []).map(g => g.toLowerCase());
+  const validGenres = candidateGenres.filter(g => availableSeeds.includes(g));
+  const chosenGenres = shuffleArray(validGenres.length ? validGenres : candidateGenres || ['pop']);
+  const seed_genres = chosenGenres.slice(0, Math.min(5, chosenGenres.length)).join(',');
   const mm = Object.assign({}, base, { target_valence: jitter(base.target_valence), target_energy: jitter(base.target_energy) });
     let recs;
     try {
@@ -292,8 +306,16 @@ app.post('/api/create-playlist', async (req, res) => {
       // fallback to search by seed genre
       try {
         const genre = (mm.genres && mm.genres[0]) || 'pop';
-        const searchResp = await spotify.searchTopTracksByGenre(accessToken, genre, 30);
-        recs = { tracks: (searchResp.tracks && searchResp.tracks.items) || [] };
+        let searchResp = await spotify.searchTopTracksByGenre(accessToken, genre, 30);
+        let items = (searchResp.tracks && searchResp.tracks.items) || [];
+        if (!items.length) {
+          // try mood keyword fallback
+          const moodKeyword = mood || 'romantic';
+          console.warn('Genre search returned no items, trying mood keyword search:', moodKeyword);
+          searchResp = await spotify.searchTopTracksByGenre(accessToken, `${moodKeyword} love`, 30);
+          items = (searchResp.tracks && searchResp.tracks.items) || [];
+        }
+        recs = { tracks: items };
       } catch (se) {
         console.error('Fallback search failed', se?.response?.data || se?.message);
         return res.status(502).json({ error: 'no recommendations and fallback failed', details: se?.response?.data || se?.message });

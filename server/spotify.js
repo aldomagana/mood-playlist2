@@ -82,9 +82,19 @@ async function addTracksToPlaylist(access_token, playlist_id, uris){
 // Fallback: search top tracks by genre (Spotify search doesn't support genre alone, so use a query with genre: or popular artists)
 async function searchTopTracksByGenre(access_token, genre, limit = 20){
   try {
-    // Spotify search supports 'genre:"genre"' filtering for artists only; to get tracks we search for the genre term and filter results.
-    const q = `genre:\"${genre}\"`;
-    const res = await axios.get('https://api.spotify.com/v1/search', { params: { q, type: 'track', limit }, headers: { Authorization: `Bearer ${access_token}` } });
+    // First attempt: genre filter (may return empty as genre filter is limited)
+    let q = `genre:\"${genre}\"`;
+    let res = await axios.get('https://api.spotify.com/v1/search', { params: { q, type: 'track', limit }, headers: { Authorization: `Bearer ${access_token}` } });
+    if (res && res.tracks && res.tracks.items && res.tracks.items.length) return res.data;
+
+    // Second attempt: plain keyword search for the genre term
+    q = `${genre}`;
+    res = await axios.get('https://api.spotify.com/v1/search', { params: { q, type: 'track', limit }, headers: { Authorization: `Bearer ${access_token}` } });
+    if (res && res.tracks && res.tracks.items && res.tracks.items.length) return res.data;
+
+    // Third attempt: broaden the keyword (add 'love' for romantic-like genres, or 'music')
+    q = `${genre} music`;
+    res = await axios.get('https://api.spotify.com/v1/search', { params: { q, type: 'track', limit }, headers: { Authorization: `Bearer ${access_token}` } });
     return res.data;
   } catch (err) {
     console.error('Spotify.searchTopTracksByGenre error:', { genre, status: err?.response?.status, data: err?.response?.data, message: err?.message });
@@ -103,3 +113,18 @@ module.exports = {
 
 // export search helper
 module.exports.searchTopTracksByGenre = searchTopTracksByGenre;
+
+// Get Spotify's list of available seed genres for recommendations
+async function getAvailableGenreSeeds(access_token) {
+  try {
+    const headers = access_token ? { Authorization: `Bearer ${access_token}` } : {};
+    const res = await axios.get('https://api.spotify.com/v1/recommendations/available-genre-seeds', { headers });
+    return res.data.genres || [];
+  } catch (err) {
+    console.error('Spotify.getAvailableGenreSeeds error:', { status: err?.response?.status, data: err?.response?.data, message: err?.message });
+    // Return empty array to let callers fallback gracefully
+    return [];
+  }
+}
+
+module.exports.getAvailableGenreSeeds = getAvailableGenreSeeds;
