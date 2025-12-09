@@ -1,130 +1,81 @@
-/* GLOBAL PAGE STYLE */
-body, html {
+/* ---------------------------------------------------------
+   HOMEPAGE: 3 SECTIONS FIT INTO ONE FULL SCREEN
+--------------------------------------------------------- */
+
+.homepage {
+  height: 100%;
+}
+
+/* container for all 3 sections */
+.home-sections {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 70px); /* subtract nav height */
+  padding: 0;
   margin: 0;
-  padding: 0;
-  font-family: "Inter", sans-serif;
-  scroll-behavior: smooth;
-  color: white;
 }
 
-/* NAVBAR */
-.site-nav {
-  position: sticky;
-  top: 0;
-  backdrop-filter: blur(12px);
-  background: rgba(0, 0, 0, 0.4);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  z-index: 10;
-}
-
-.nav-inner {
+/* Each section takes equal height of the remaining screen */
+.home-sections .section {
+  flex: 1; /* equal height */
   display: flex;
-  align-items: center;
-  padding: 14px 32px;
-}
-
-/* LOGO */
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-}
-.logo {
-  width: 42px;
-  height: 42px;
-  background: #1db954;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  font-weight: 900;
-  font-size: 18px;
-  color: white;
-}
-.brand-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: white;
-}
-
-/* NAV BUTTONS */
-.nav-actions {
-  margin-left: auto;
-  display: flex;
-  gap: 18px;
-}
-.nav-btn {
-  padding: 8px 18px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.15);
-  text-decoration: none;
-  color: white;
-  font-weight: 600;
-  transition: 0.2s ease;
-}
-.nav-btn:hover {
-  background: rgba(255,255,255,0.25);
-}
-.login-btn {
-  background: #1db954;
-}
-.login-btn:hover {
-  background: #19a84a;
-}
-
-/* FULLSCREEN SECTIONS */
-.full-section {
-  height: 100vh;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 40px;
+
   text-align: center;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  padding: 40px;
+
+  /* Remove home card styling from style.css */
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+
+  color: white;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Section backgrounds (modern & themed) */
-.welcome-section {
-  background: url("https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1400&q=80")
-              rgba(0, 0, 0, 0.4);
-  background-blend-mode: darken;
-}
-.features-section {
-  background: linear-gradient(135deg, #1db954, #0d873f);
-}
-.thanks-section {
-  background: url("https://images.unsplash.com/photo-1544785349-c4a5301826fd?auto=format&fit=crop&w=1400&q=80")
-              rgba(0, 0, 0, 0.55);
-  background-blend-mode: overlay;
+/* Modern gradient backgrounds matching your theme */
+#welcome.section {
+  background: linear-gradient(135deg, #124380, #1d5cbf);
 }
 
-/* Centered content */
-.section-content {
-  max-width: 700px;
-  animation: fadeIn 1s ease;
+#features.section {
+  background: linear-gradient(135deg, #1d5cbf, #2b6ef6);
 }
-.section-content h1 {
-  font-size: 3rem;
-  margin-bottom: 15px;
+
+#thanks.section {
+  background: linear-gradient(135deg, #2b6ef6, #6fb0ff);
 }
-.section-content p, 
-.section-content li {
-  font-size: 1.2rem;
-  opacity: 0.9;
+
+/* Text styling */
+.section h1,
+.section h2 {
+  font-size: 32px;
+  margin-bottom: 14px;
+  color: #ffffff;
 }
-.section-content ul {
+
+.section p,
+.section li {
+  font-size: 17px;
+  max-width: 650px;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.5;
+}
+
+.section ul {
   list-style: none;
-  padding: 0;
-}
-.section-content li {
-  margin: 10px 0;
+  padding-left: 0;
 }
 
-/* Animation */
+/* Smooth fade-in animation */
+.section-content {
+  animation: fadeIn 0.8s ease;
+}
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(15px); }
   to   { opacity: 1; transform: translateY(0); }
 }
