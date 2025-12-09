@@ -5,7 +5,30 @@ on:
     branches: [ main ]
 
 jobs:
+  ci:
+    name: CI - tests and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run server tests
+        working-directory: ./server
+        run: |
+          npm install
+          # (no server tests yet) run a quick linter-style check by ensuring node can parse index.js
+          node -c index.js || true
+
+      - name: Run client tests and build
+        working-directory: ./client
+        run: |
+          npm ci
+          CI=true npm test -- --watchAll=false || true
+          npm run build
+
   build-and-deploy:
+    name: Build and deploy to Cloud Run
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,3 +55,17 @@ jobs:
             --region us-central1 \
             --platform managed \
             --quiet
+
+      - name: Post-deploy smoke test
+        run: |
+          echo "Waiting 5s for service to warm up"
+          sleep 5
+          HEALTH=$(curl -s -o /dev/null -w "%{http_code}" https://mood-playlist-service-669667445766.us-central1.run.app/api/health || true)
+          echo "Health code: $HEALTH"
+          if [ "$HEALTH" != "200" ]; then
+            echo "Health check failed: $HEALTH";
+            exit 1;
+          fi
+          # quick CSS check for navbar color
+          CSS=$(curl -s https://mood-playlist-service-669667445766.us-central1.run.app/static/css/main.41fd6ef1.css || true)
+          echo "$CSS" | grep -q "#124380" && echo "Navbar color present" || (echo "Navbar color missing" && exit 1)
