@@ -1,5 +1,5 @@
 import React from "react";
-import "../home.css";
+import "./home.css";
 
 export default function Home() {
   return (
@@ -8,61 +8,51 @@ export default function Home() {
       {/* NAVBAR */}
       <header className="site-nav">
         <div className="nav-inner">
-          
-          {/* LOGO → Home */}
           <a href="/" className="brand">
             <div className="logo">MP</div>
             <span className="brand-title">Mood Playlist</span>
           </a>
 
-          {/* RIGHT SIDE BUTTONS */}
           <div className="nav-actions">
-
-            {/* DASHBOARD BUTTON */}
-            <a href="/dashboard" className="nav-btn">
-              Dashboard
-            </a>
-
-            {/* LOGIN (or replace with Logout when auth is added) */}
-            <a href="/login" className="nav-btn login-btn">
-              Login
-            </a>
-
+            <a href="/dashboard" className="nav-btn">Dashboard</a>
+            <a href="/login" className="nav-btn login-btn">Login</a>
           </div>
         </div>
       </header>
 
-      {/* MAIN CONTENT */}
-      <main className="content">
-
-        <section id="welcome" className="section-card">
+      {/* FULLSCREEN SECTIONS */}
+      <section id="welcome" className="full-section welcome-section">
+        <div className="section-content">
           <h1>Welcome to Mood Playlist</h1>
           <p>
-            Turn your mood into a Spotify playlist in seconds. Login with Spotify, 
-            choose a mood, and we'll build a playlist perfectly tailored to your vibe.
+            Transform your mood into a Spotify playlist instantly.  
+            Pick a vibe — get a playlist.
           </p>
-        </section>
+        </div>
+      </section>
 
-        <section id="features" className="section-card">
-          <h2>Features</h2>
+      <section id="features" className="full-section features-section">
+        <div className="section-content">
+          <h1>Features</h1>
           <ul>
-            <li>One-click Spotify login and authorization</li>
-            <li>Curated moods mapped to audio features + genre seeds</li>
-            <li>Smart track selection with recommendations + fallbacks</li>
-            <li>Unique playlists every time using shuffle + dedupe logic</li>
-            <li>Fully deployable container with CI/CD on Cloud Run</li>
+            <li>Instant Spotify login</li>
+            <li>Curated moods + audio feature mapping</li>
+            <li>Smart track selection with recommendations</li>
+            <li>Unique playlists every time</li>
+            <li>Cloud-hosted & fast</li>
           </ul>
-        </section>
+        </div>
+      </section>
 
-        <section id="thanks" className="section-card">
-          <h2>Thank You</h2>
+      <section id="thanks" className="full-section thanks-section">
+        <div className="section-content">
+          <h1>Thank You</h1>
           <p>
-            Thanks for trying Mood Playlist! We hope this app helps you set the perfect 
-            soundtrack for any mood. Feedback and contributions are always welcome.
+            Thanks for trying Mood Playlist!  
+            We hope your playlists match your vibe perfectly.
           </p>
-        </section>
-
-      </main>
+        </div>
+      </section>
 
     </div>
   );
