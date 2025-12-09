@@ -15,12 +15,13 @@ html,body,#root{ height:100%; }
 body{ margin:0; background:var(--bg); color:#0f172a; -webkit-font-smoothing:antialiased; }
 
 .app{ max-width:1000px; margin:36px auto; padding:28px; }
+.site-nav{ background:#124380; }
 .topbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; }
 .brand{ display:flex; align-items:center; gap:12px; }
 .logo{ width:44px; height:44px; border-radius:8px; background:linear-gradient(135deg,var(--accent),#6fb0ff); box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; }
 .nav{ display:flex; gap:12px; align-items:center }
-.nav a{ color:var(--muted); text-decoration:none; padding:8px 12px; border-radius:8px; }
-.nav a:hover{ background:var(--accent-200); color:var(--accent-600); }
+.site-nav .nav a{ color:rgba(255,255,255,0.9); text-decoration:none; padding:8px 12px; border-radius:8px; }
+.site-nav .nav a:hover{ background:rgba(255,255,255,0.06); color:white; }
 .btn{ background:var(--accent); color:white; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:600; }
 .btn.secondary{ background:#eef2ff; color:var(--accent-600); font-weight:600; }
 .card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; }
