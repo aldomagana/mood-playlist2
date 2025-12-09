@@ -128,3 +128,28 @@ async function getAvailableGenreSeeds(access_token) {
 }
 
 module.exports.getAvailableGenreSeeds = getAvailableGenreSeeds;
+
+// Search for artists by keyword
+async function searchArtists(access_token, q, limit = 20){
+  try {
+    const res = await axios.get('https://api.spotify.com/v1/search', { params: { q, type: 'artist', limit }, headers: { Authorization: `Bearer ${access_token}` } });
+    return res.data;
+  } catch (err) {
+    console.error('Spotify.searchArtists error:', { q, status: err?.response?.status, data: err?.response?.data, message: err?.message });
+    throw err;
+  }
+}
+
+// Get an artist's top tracks (market optional)
+async function getArtistTopTracks(access_token, artistId, market = 'US'){
+  try {
+    const res = await axios.get(`https://api.spotify.com/v1/artists/${artistId}/top-tracks`, { params: { market }, headers: { Authorization: `Bearer ${access_token}` } });
+    return res.data;
+  } catch (err) {
+    console.error('Spotify.getArtistTopTracks error:', { artistId, status: err?.response?.status, data: err?.response?.data, message: err?.message });
+    throw err;
+  }
+}
+
+module.exports.searchArtists = searchArtists;
+module.exports.getArtistTopTracks = getArtistTopTracks;
